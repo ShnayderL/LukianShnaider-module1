@@ -16,8 +16,11 @@ public class FileUI {
         }
         return content.toString();
     }
-    public static void writeToFile(File file, String content){
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))){
+    public static void writeToFile(File file, String content, String command){
+        String ending = command + ".txt";
+        String newFileName = file.toString().replace(".txt", command + ".txt");
+        File newFile = new File(newFileName);
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(newFile))){
             writer.write(content);
         } catch (IOException e) {
             throw new RuntimeException(e);
