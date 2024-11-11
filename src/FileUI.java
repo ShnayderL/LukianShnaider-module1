@@ -18,9 +18,9 @@ public class FileUI {
         return content.toString();
     }
 
-    public static void writeToFile(File file, String content, Commands command) {
+    public static void writeToFile(File file, String content, Commands command, int key) {
         if (file.isAbsolute()) {
-            File newFile = newFileName(file, command);
+            File newFile = newFileName(file, command, key);
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(newFile))) {
                 writer.write(content);
             } catch (IOException e) {
@@ -31,7 +31,7 @@ public class FileUI {
         }
     }
 
-    private static File newFileName(File file, Commands command){
+    private static File newFileName(File file, Commands command, int key){
         String newFileName = " ";
         String fileName = file.getName();
         if (command.equals(Commands.ENCRYPT)) {
@@ -48,6 +48,8 @@ public class FileUI {
                 throw new FileProblemsException("file should be previously encrypted to decrypt it");
             }
             newFileName = file.toString().replace("[ENCRYPTED].txt", "[DECRYPTED].txt");
+        } else if (command.equals(Commands.BRUTE_FORCE)) {
+            newFileName = file.toString().replace(".txt", "(B key-" + key + ").txt");
         }
         return new File(newFileName);
     }

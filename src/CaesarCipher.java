@@ -1,14 +1,8 @@
 import Exceptions.IllegalKeyException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class CaesarCipher {
-    private int key;
-    public CaesarCipher(int key){
-        this.key = makeKeyCorrect(key);
-    }
     private static final List<Character> ENGLISH_LETTERS = Arrays.asList(
             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
             'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -56,6 +50,72 @@ public class CaesarCipher {
         }
         return resultString.toString();
     }
+    private boolean startsWithUpperCase(String text) {
+        if (text.isEmpty()) {
+            return false; // Порожній рядок не може починатися з великої літери
+        }
+        char firstChar = text.charAt(0);
+        return Character.isUpperCase(firstChar);
+    }
+    public int countSpaces(String text) {
+        int spaceCount = 0;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == ' ') {
+                spaceCount++;
+            }
+        }
+        return spaceCount;
+    }
+    public int countDots(String text) {
+        int dotsCount = 0;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '.') {
+                dotsCount++;
+            }
+        }
+        return dotsCount;
+    }
+    private int countCommonWords(String text){
+        List<String> commonWords = Arrays.asList(
+                "і", "І", "в", "В", "на", "На", "з", "З", "що", "Що", "до", "До", "не", "Не",
+                "та", "Та", "я", "Я", "ти", "Ти", "він", "Він", "вона", "Вона", "це", "Це",
+                "як", "Як", "у", "У", "так", "Так", "але", "Але", "все", "Все", "його", "Його",
+                "для", "Для", "про", "Про", "бо", "Бо", "або", "Або", "the", "The", "and", "And",
+                "of", "Of", "to", "To", "a", "A", "in", "In", "is", "Is", "it", "It", "you", "You",
+                "that", "That", "he", "He", "was", "Was", "for", "For", "on", "On", "are", "Are",
+                "with", "With", "as", "As", "I", "His", "they", "They", "be", "Be", "at", "At", ". ", ", "
+        );
+        int commonWordsCount = 0;
+        for (String word : commonWords) {
+            if (text.contains(word)) {
+                commonWordsCount += 1;
+            }
+        }
+        return commonWordsCount;
+    }
+    public Map<Integer, Integer> bruteForce(String text){
+         int pointsOfProbableVariant = 0;
+         int key = 0;
+         Map<Integer, Integer> keys = new HashMap<>();
+        for (int i = 1; i <= UKRAINIAN_LETTERS.size(); i++) {
+            String probableVariant = decrypt(text, i);
+            if(startsWithUpperCase(text)){
+                pointsOfProbableVariant +=1;
+            }
+            pointsOfProbableVariant += countSpaces(probableVariant);
+            pointsOfProbableVariant += countDots(probableVariant);
+            pointsOfProbableVariant += countCommonWords(probableVariant);
+
+            if(pointsOfProbableVariant > 1){
+                if(pointsOfProbableVariant >= key){
+                    key = pointsOfProbableVariant;
+                    keys.put(pointsOfProbableVariant, i);
+                }
+            }
+            pointsOfProbableVariant = 0;
+        }
+         return keys;
+    }
     private void moveSymbol(char c, int step, StringBuilder resultString, List<Character> language){
         int length = language.size();
         int newSymbolIndex = (language.indexOf(c) + step) % length;
@@ -65,10 +125,12 @@ public class CaesarCipher {
         }
         resultString.append(language.get(newSymbolIndex));
     }
-    public String encrypt(String text){
+    public String encrypt(String text, int key){
+        makeKeyCorrect(key);
          return moveAllSymbols(text, key);
     }
-    public String decrypt(String text){
-         return moveAllSymbols(text, -key);
+    public String decrypt(String text, int key){
+        makeKeyCorrect(key);
+        return moveAllSymbols(text, -key);
     }
 }
